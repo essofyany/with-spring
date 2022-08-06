@@ -1,20 +1,33 @@
 import { useRef } from 'react';
 import { config, useSpring, animated } from 'react-spring';
+import { levelCalculator } from '../utils/levelCalculator';
 
 interface ProgressBarProps {
 	xp?: number;
-	level?: number;
 }
 
-export function ProgressBar({ xp = 900, level = 1 }: ProgressBarProps) {
-	const calculatedWidth = getWidth(xp, level);
+export function ProgressBar({ xp = 900 }: ProgressBarProps) {
 	const roundRef = useRef(0);
+
+	const { currentLevel, nextLevelXP, remainingXP } = levelCalculator({ xp });
+	const calculatedWidth = (100 * remainingXP) / nextLevelXP;
+
 	const props = useSpring({
 		from: { width: '0%' },
-		to: { width: 100 * calculatedWidth + '%' },
-		config: { ...config.molasses, duration: 1000 },
-		loop: () => 2 > roundRef.current++,
+		to: async (animate) => {
+			await animate({
+				to: {
+					width:
+						roundRef.current >= currentLevel - 1
+							? calculatedWidth + '%'
+							: '100%',
+				},
+			});
+		},
+		loop: () => currentLevel - 1 > roundRef.current++,
+		config: { ...config.default, duration: 800 },
 	});
+
 	return (
 		<div className='w-3/4 h-5 bg-white/20 rounded-full'>
 			<animated.div
@@ -24,7 +37,7 @@ export function ProgressBar({ xp = 900, level = 1 }: ProgressBarProps) {
 					style={{ filter: 'blur(14px)' }}
 					className='w-full h-full bg-gradient-to-r from-darkBlue to-lightBlue rounded-full'
 				/>
-				<ProgressValue currentXP={xp} levelXP={1000} />
+				<ProgressValue currentXP={remainingXP} levelXP={nextLevelXP} />
 				<Star />
 			</animated.div>
 		</div>
@@ -65,35 +78,4 @@ function Star() {
 			</svg>
 		</div>
 	);
-}
-
-function getWidth(xp = 3000, currentLevel = 2): number {
-	let calculatedWidth = 0;
-	const range = (level = currentLevel) => {
-		switch (level) {
-			case 2:
-				return [0, 1000];
-			case 3:
-				return [0, 1000, 1300];
-			case 4:
-				return [0, 1000, 1300, 1690];
-			case 5:
-				return [0, 1000, 1300, 1690, 2197];
-			case 6:
-				return [0, 1000, 1300, 1690, 2197, 2851];
-			default:
-				return [0, 1000];
-		}
-	};
-	console.log('XP: ', xp);
-	console.log('Current Level: ', currentLevel);
-	console.log('range: ', range(currentLevel));
-	const maxXPforCurrentLevel = range(currentLevel).reduce(
-		(acc, i) => acc + i,
-		0,
-	);
-	calculatedWidth = xp / maxXPforCurrentLevel;
-	console.log('calculatedWidth: ', calculatedWidth);
-
-	return calculatedWidth;
 }
