@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Badge } from './components/Badge';
 import { Burst } from './components/Burst';
 import { Input } from './components/Input';
@@ -18,7 +18,7 @@ export default function App() {
 		<>
 			<div className='relative w-full h-screen bg-dark overflow-hidden'>
 				<Burst isVisible={true} />
-				<div className='w-10/12 mx-auto h-full flex flex-col items-center justify-center relative z-10'>
+				<div className='w-10/12 mx-auto h-full flex flex-col items-center justify-center gap-4 relative z-10'>
 					<Badge />
 					<Level />
 					{xp ? (

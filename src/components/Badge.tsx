@@ -11,7 +11,6 @@ export function Badge() {
 				background: 'transparent',
 				borderRadius: 0,
 				filter: 'blur(0px)',
-				y: 0,
 			});
 			if (shouldAnimate) {
 				await next({
@@ -20,7 +19,6 @@ export function Badge() {
 					background: 'white',
 					borderRadius: 120,
 					filter: 'blur(10px)',
-					y: 0,
 				});
 			}
 			await next({
@@ -28,16 +26,14 @@ export function Badge() {
 				background: 'transparent',
 				borderRadius: 0,
 				filter: 'blur(0px)',
-				y: 0,
 			});
 			if (badgeImg === '/assets/level-high.png') {
 				await next({
-					scale: 1,
+					scale: 0.9,
 					background: 'transparent',
 					borderRadius: 0,
 					filter: 'blur(0px)',
-					y: -50,
-					config: config.wobbly,
+					config: { ...config.wobbly, duration: 300 },
 					delay: 1000,
 				});
 			}
@@ -46,7 +42,7 @@ export function Badge() {
 
 	return (
 		<>
-			<animated.figure style={styles} className='w-60 h-60'>
+			<animated.figure style={styles} className='w-80 h-80'>
 				<img
 					className='w-full h-full object-contain'
 					src={badgeImg}
