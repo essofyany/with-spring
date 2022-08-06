@@ -45,7 +45,7 @@ export function ProgressBar({
 	// console.log(currentLevel, nextLevelXP, remainingXP);
 
 	return (
-		<div className='w-3/4 h-5 bg-white/20 rounded-full'>
+		<div className='w-3/4 lg:w-1/3 h-4 bg-white/20 rounded-full'>
 			<animated.div
 				style={props}
 				className='relative max-w-full h-full bg-gradient-to-r from-darkBlue to-lightBlue rounded-full'>

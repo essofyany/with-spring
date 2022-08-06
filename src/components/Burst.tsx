@@ -1,31 +1,45 @@
-import { useTransition, animated, config } from 'react-spring';
+import { useSpring, animated, config } from 'react-spring';
+import { useLevelUpStore } from '../context/levelUpSlice';
 
-interface BusrtProps {
-	isVisible?: boolean;
-}
-
-export const Burst = ({ isVisible = false }: BusrtProps) => {
-	const transitions = useTransition(isVisible, {
-		from: { opacity: 0 },
-		enter: { opacity: 1 },
-		leave: { opacity: 0 },
-		delay: 200,
-		config: config.molasses,
+export const Burst = () => {
+	const { shouldAnimate } = useLevelUpStore();
+	const styles = useSpring({
+		from: { scale: 0, opacity: 0, filter: 'blur(20px)' },
+		to: async (next, cancel) => {
+			if (shouldAnimate) {
+				await next({
+					opacity: 1,
+					delay: 500,
+					scale: 1,
+					config: config.slow,
+					filter: 'blur(0px)',
+				});
+				await next({
+					opacity: 0,
+					scale: 1,
+					delay: 2500,
+					config: config.slow,
+					filter: 'blur(20px)',
+				});
+			} else {
+				await next({
+					scale: 0,
+					opacity: 0,
+					config: config.gentle,
+					filter: 'blur(0px)',
+				});
+			}
+		},
 	});
-
-	return transitions((style, item) =>
-		item ? (
-			<animated.figure
-				style={style}
-				className='absolute top-0 left-0 z-0 h-full w-full overflow-hidden'>
-				<img
-					className='w-full h-full sca object-cover'
-					src='/assets/burst.png'
-					alt='burst'
-				/>
-			</animated.figure>
-		) : (
-			<></>
-		),
+	return (
+		<animated.figure
+			style={styles}
+			className='absolute -top-40 -left-40 md:top-0 md:left-0 z-0 w-[1100px] md:w-full h-[1100px] md:h-full'>
+			<img
+				className='w-full h-full object-fill'
+				src='/assets/burst.png'
+				alt='burst'
+			/>
+		</animated.figure>
 	);
 };

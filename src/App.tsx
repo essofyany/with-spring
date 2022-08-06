@@ -17,7 +17,7 @@ export default function App() {
 	return (
 		<>
 			<div className='relative w-full h-screen bg-dark overflow-hidden'>
-				<Burst isVisible={true} />
+				<Burst />
 				<div className='w-10/12 mx-auto h-full flex flex-col items-center justify-center gap-4 relative z-10'>
 					<Badge />
 					<Level />
@@ -32,7 +32,7 @@ export default function App() {
 						<></>
 					)}
 				</div>
-				<div className='absolute top-0 flex gap-4 z-50 w-full justify-center p-2'>
+				<div className='absolute top-5 flex gap-4 z-50 w-full justify-center p-2'>
 					<Input
 						value={input}
 						onChange={setInput}
