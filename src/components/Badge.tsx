@@ -1,41 +1,58 @@
-import { animated, config, useSpring, useTransition } from 'react-spring';
-import { useEffect } from 'react';
+import { animated, config, useSpring } from 'react-spring';
+import { useLevelUpStore } from '../context/levelUpSlice';
 
-interface BadgeProps {
-	badgeImage?: string;
-}
-
-export function Badge({ badgeImage = '/assets/level-low.png' }: BadgeProps) {
-	const [props, api] = useSpring(() => ({
-		from: { scale: 0 },
-		to: { scale: 1 },
-		reverse: false,
-	}));
-
-	const transitions = useTransition(true, {
-		from: { opacity: 0, scale: 0 },
-		enter: { opacity: 1, scale: 1 },
-		leave: { opacity: 0, scale: 0 },
-		config: { ...config.wobbly, bounce: 0, duration: 250 },
+export function Badge() {
+	const { shouldAnimate, badgeImg } = useLevelUpStore();
+	const styles = useSpring({
+		from: { scale: 1 },
+		to: async (next, cancel) => {
+			await next({
+				scale: 1,
+				background: 'transparent',
+				borderRadius: 0,
+				filter: 'blur(0px)',
+				y: 0,
+			});
+			if (shouldAnimate) {
+				await next({
+					config: config.gentle,
+					scale: 0.2,
+					background: 'white',
+					borderRadius: 120,
+					filter: 'blur(10px)',
+					y: 0,
+				});
+			}
+			await next({
+				scale: 1,
+				background: 'transparent',
+				borderRadius: 0,
+				filter: 'blur(0px)',
+				y: 0,
+			});
+			if (badgeImg === '/assets/level-high.png') {
+				await next({
+					scale: 1,
+					background: 'transparent',
+					borderRadius: 0,
+					filter: 'blur(0px)',
+					y: -50,
+					config: config.wobbly,
+					delay: 1000,
+				});
+			}
+		},
 	});
 
-	useEffect(() => {
-		// console.log('Badge image:', badgeImage);
-		api.start();
-	}, [badgeImage, api]);
-
-	return transitions((style, item) =>
-		item ? (
-			<animated.figure style={style} className='w-80 h-80'>
-				<animated.img
-					style={props}
+	return (
+		<>
+			<animated.figure style={styles} className='w-60 h-60'>
+				<img
 					className='w-full h-full object-contain'
-					src={badgeImage}
+					src={badgeImg}
 					alt='level'
 				/>
 			</animated.figure>
-		) : (
-			<></>
-		),
+		</>
 	);
 }

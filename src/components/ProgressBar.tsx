@@ -1,33 +1,48 @@
 import { useRef } from 'react';
 import { config, useSpring, animated } from 'react-spring';
-import { levelCalculator } from '../utils/levelCalculator';
-import { levelsLog } from '../utils/levelsLog';
+import { useLevelUpStore } from '../context/levelUpSlice';
 
-interface ProgressBarProps {
-	xp?: number;
+type LevelProps = {
+	nextLevelXP: number;
+	currentLevel: number;
+	remainingXP: number;
+};
+interface ProgressBarProps extends LevelProps {
+	levelLogs?: LevelProps[];
+	handleBadge?: () => void;
 }
 
-export function ProgressBar({ xp = 900 }: ProgressBarProps) {
-	const roundRef = useRef(0);
-
-	const { currentLevel, nextLevelXP, remainingXP } = levelCalculator({ xp });
+export function ProgressBar({
+	currentLevel = 1,
+	nextLevelXP = 1000,
+	remainingXP = 500,
+	levelLogs = [],
+}: ProgressBarProps) {
+	const roundRef = useRef(1);
+	const { setBadgeAnimation, setBadgeImage } = useLevelUpStore();
 	const calculatedWidth = (100 * remainingXP) / nextLevelXP;
-
-	const props = useSpring({
+	const [props, api] = useSpring(() => ({
 		from: { width: '0%' },
 		to: async (animate) => {
-			await animate({
-				to: {
-					width:
-						roundRef.current >= currentLevel - 1
-							? calculatedWidth + '%'
-							: '100%',
-				},
-			});
+			if (currentLevel === 1) {
+				return await animate({ to: { width: calculatedWidth + '%' } });
+			}
+			if (roundRef.current >= currentLevel) {
+				setTimeout(() => {
+					setBadgeImage('/assets/level-high.png');
+					setBadgeAnimation(true);
+				}, 700);
+				return await animate({ to: { width: calculatedWidth + '%' } });
+			} else {
+				setBadgeAnimation(false);
+				return await animate({ to: { width: '100%' } });
+			}
 		},
-		loop: () => currentLevel - 1 > roundRef.current++,
+		loop: () => currentLevel > roundRef.current++,
 		config: { ...config.default, duration: 800 },
-	});
+	}));
+
+	// console.log(currentLevel, nextLevelXP, remainingXP);
 
 	return (
 		<div className='w-3/4 h-5 bg-white/20 rounded-full'>
@@ -38,32 +53,18 @@ export function ProgressBar({ xp = 900 }: ProgressBarProps) {
 					style={{ filter: 'blur(14px)' }}
 					className='w-full h-full bg-gradient-to-r from-darkBlue to-lightBlue rounded-full'
 				/>
-				<p className='text-white'>{currentLevel}</p>
-				<ProgressValue xp={xp} />
+				<ProgressValue levelLogs={levelLogs} />
 				<Star />
 			</animated.div>
 		</div>
 	);
 }
 
-function ProgressValue({ xp = 900 }) {
-	const roundRef = useRef(0);
-
-	const logs = levelsLog({ xp });
-	console.log(logs);
-
-	const { number } = useSpring({
-		from: { number: 0 },
-		number: logs[roundRef.current + 1]?.remainingXP || 0,
-		delay: 200,
-		loop: () => logs[roundRef.current]?.currentLevel - 1 > roundRef.current++,
-		config: config.molasses,
-	});
-
+function ProgressValue({ levelLogs = [] }: { levelLogs: LevelProps[] }) {
 	return (
-		<div className='absolute w-fit -top-10 -right-6 flex text-white font-semibold space-x-0.5'>
-			<animated.p className=''>{number.to((n) => n.toFixed(0))}</animated.p>
-			<p>/ {logs[roundRef.current + 1]?.nextLevelXP || 0}</p>
+		<div className='absolute w-fit -top-10 -right-6 flex text-white font-semibold gap-1'>
+			<p>{levelLogs[levelLogs.length - 1].remainingXP}</p>/
+			<p>{levelLogs[levelLogs.length - 1].nextLevelXP}</p>
 		</div>
 	);
 }
