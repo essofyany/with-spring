@@ -17,13 +17,14 @@ export default function App() {
 				<div className='w-10/12 mx-auto h-full flex flex-col items-center justify-center relative z-10'>
 					<Badge badgeImage={'/assets/level-low.png'} />
 					<Level isVisible={true} />
-					<ProgressBar xp={xp} />
+					{xp && <ProgressBar xp={xp} />}
 				</div>
 				<div className='absolute top-0 flex gap-4 z-50 w-full justify-center p-2'>
 					<Input
 						value={input}
 						onChange={setInput}
 						onSubmit={() => setXp(input)}
+						onClear={() => setXp(0)}
 					/>
 				</div>
 			</div>

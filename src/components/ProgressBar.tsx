@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { config, useSpring, animated } from 'react-spring';
 import { levelCalculator } from '../utils/levelCalculator';
+import { levelsLog } from '../utils/levelsLog';
 
 interface ProgressBarProps {
 	xp?: number;
@@ -37,19 +38,32 @@ export function ProgressBar({ xp = 900 }: ProgressBarProps) {
 					style={{ filter: 'blur(14px)' }}
 					className='w-full h-full bg-gradient-to-r from-darkBlue to-lightBlue rounded-full'
 				/>
-				<ProgressValue currentXP={remainingXP} levelXP={nextLevelXP} />
+				<p className='text-white'>{currentLevel}</p>
+				<ProgressValue xp={xp} />
 				<Star />
 			</animated.div>
 		</div>
 	);
 }
 
-function ProgressValue({ currentXP = 900, levelXP = 1000 }) {
+function ProgressValue({ xp = 900 }) {
+	const roundRef = useRef(0);
+
+	const logs = levelsLog({ xp });
+	console.log(logs);
+
+	const { number } = useSpring({
+		from: { number: 0 },
+		number: logs[roundRef.current + 1]?.remainingXP || 0,
+		delay: 200,
+		loop: () => logs[roundRef.current]?.currentLevel - 1 > roundRef.current++,
+		config: config.molasses,
+	});
+
 	return (
-		<div className='absolute w-fit -top-10 -right-6'>
-			<strong className='text-white'>
-				{currentXP}/{levelXP}
-			</strong>
+		<div className='absolute w-fit -top-10 -right-6 flex text-white font-semibold space-x-0.5'>
+			<animated.p className=''>{number.to((n) => n.toFixed(0))}</animated.p>
+			<p>/ {logs[roundRef.current + 1]?.nextLevelXP || 0}</p>
 		</div>
 	);
 }
