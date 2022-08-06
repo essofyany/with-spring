@@ -2,47 +2,35 @@ import { useRef } from 'react';
 import { config, useSpring, animated } from 'react-spring';
 import { useLevelUpStore } from '../context/levelUpSlice';
 
-type LevelProps = {
-	nextLevelXP: number;
-	currentLevel: number;
-	remainingXP: number;
-};
-interface ProgressBarProps extends LevelProps {
-	levelLogs?: LevelProps[];
-	handleBadge?: () => void;
-}
+export function ProgressBar() {
+	const {
+		setBadgeImage,
+		setBadgeAnimation,
+		getCurrentLevel,
+		getProgressBarWidth,
+	} = useLevelUpStore();
 
-export function ProgressBar({
-	currentLevel = 1,
-	nextLevelXP = 1000,
-	remainingXP = 500,
-	levelLogs = [],
-}: ProgressBarProps) {
 	const roundRef = useRef(1);
-	const { setBadgeAnimation, setBadgeImage } = useLevelUpStore();
-	const calculatedWidth = (100 * remainingXP) / nextLevelXP;
 	const [props, api] = useSpring(() => ({
 		from: { width: '0%' },
 		to: async (animate) => {
-			if (currentLevel === 1) {
-				return await animate({ to: { width: calculatedWidth + '%' } });
+			if (getCurrentLevel() === 1) {
+				return await animate({ to: { width: getProgressBarWidth() + '%' } });
 			}
-			if (roundRef.current >= currentLevel) {
+			if (roundRef.current >= getCurrentLevel()) {
 				setTimeout(() => {
 					setBadgeImage('/assets/level-high.png');
 					setBadgeAnimation(true);
 				}, 700);
-				return await animate({ to: { width: calculatedWidth + '%' } });
+				return await animate({ to: { width: getProgressBarWidth() + '%' } });
 			} else {
 				setBadgeAnimation(false);
 				return await animate({ to: { width: '100%' } });
 			}
 		},
-		loop: () => currentLevel > roundRef.current++,
+		loop: () => getCurrentLevel() > roundRef.current++,
 		config: { ...config.default, duration: 800 },
 	}));
-
-	// console.log(currentLevel, nextLevelXP, remainingXP);
 
 	return (
 		<div className='w-3/4 lg:w-1/3 h-4 bg-white/20 rounded-full'>
@@ -53,18 +41,19 @@ export function ProgressBar({
 					style={{ filter: 'blur(14px)' }}
 					className='w-full h-full bg-gradient-to-r from-darkBlue to-lightBlue rounded-full'
 				/>
-				<ProgressValue levelLogs={levelLogs} />
+				<ProgressValue />
 				<Star />
 			</animated.div>
 		</div>
 	);
 }
 
-function ProgressValue({ levelLogs = [] }: { levelLogs: LevelProps[] }) {
+function ProgressValue() {
+	const { getLogs } = useLevelUpStore();
 	return (
 		<div className='absolute w-fit -top-10 -right-6 flex text-white font-semibold gap-1'>
-			<p>{levelLogs[levelLogs.length - 1].remainingXP}</p>/
-			<p>{levelLogs[levelLogs.length - 1].nextLevelXP}</p>
+			<p>{getLogs()[getLogs().length - 1].remainingXP.toFixed(0)}</p>/
+			<p>{getLogs()[getLogs().length - 1].nextLevelXP.toFixed(0)}</p>
 		</div>
 	);
 }

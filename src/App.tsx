@@ -1,18 +1,15 @@
 import { useState } from 'react';
+
 import { Badge } from './components/Badge';
 import { Burst } from './components/Burst';
 import { Input } from './components/Input';
 import { Level } from './components/Level';
 import { ProgressBar } from './components/ProgressBar';
 import { useLevelUpStore } from './context/levelUpSlice';
-import { levelCalculator } from './utils/levelCalculator';
-import { levelsLog } from './utils/levelsLog';
 
 export default function App() {
 	const [input, setInput] = useState(0);
-	const [xp, setXp] = useState(0);
-	const { setBadgeImage, setBadgeAnimation } = useLevelUpStore();
-	const { currentLevel, nextLevelXP, remainingXP } = levelCalculator({ xp });
+	const { setBadgeImage, setBadgeAnimation, xp, setXP } = useLevelUpStore();
 
 	return (
 		<>
@@ -21,25 +18,16 @@ export default function App() {
 				<div className='w-10/12 mx-auto h-full flex flex-col items-center justify-center gap-4 relative z-10'>
 					<Badge />
 					<Level />
-					{xp ? (
-						<ProgressBar
-							currentLevel={currentLevel}
-							nextLevelXP={nextLevelXP}
-							remainingXP={remainingXP}
-							levelLogs={levelsLog({ xp })}
-						/>
-					) : (
-						<></>
-					)}
+					{xp ? <ProgressBar /> : <></>}
 				</div>
 				<div className='absolute top-5 flex gap-4 z-50 w-full justify-center p-2'>
 					<Input
 						value={input}
 						onChange={setInput}
-						onSubmit={() => setXp(input)}
+						onSubmit={() => setXP(input)}
 						onClear={() => {
 							setInput(0);
-							setXp(0);
+							setXP(0);
 							setBadgeImage('/assets/level-low.png');
 							setBadgeAnimation(false);
 						}}
