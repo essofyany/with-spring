@@ -10,3 +10,6 @@
 
 - **Why Zustand for state management?**
   At the beginning I heavily used hooks like useState, useRefs, and useEffect all across the test, which makes tracking states harder due to some components aren’t at the same level and share the same state. Because of that I choose Zustand which is a simple and light weight library for state management, by using it there will be one single source of truth and all components became more isolated and independent of other components, and this makes the code more maintainable and scalable.
+
+- **Why I didn't test all components?**
+  I've spent the majority of time at react-pring docs so lack of time is one reason, the second reason is that testing components with a lot of animations doesn't make any sense especially with unit testing, e2e testing with UI snapshot comparaison will be a great choice.  

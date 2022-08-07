@@ -29,7 +29,7 @@ export function Level() {
 			<img
 				className='w-full h-full object-cover'
 				src='/assets/level-name.png'
-				alt='burst'
+				alt='level name'
 			/>
 		</animated.figure>
 	);
